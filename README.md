@@ -1,9 +1,10 @@
-# Relatórios para documentos físcais eletrônicos
-
-## Descrição do projeto
+# Leitor de Documentos Fiscais Eletrônicos
+![Badge Concluído](http://img.shields.io/static/v1?label=STATUS&message=CONCLUÍDO&color=GREEN&style=for-the-badge)
+![Badge NodeJs](http://img.shields.io/static/v1?label=NodeJS&message=16.14.0&color=GREEN&style=for-the-badge)
+![Badge NestJS](http://img.shields.io/static/v1?label=NestJS&message=8.2.4&color=red&style=for-the-badge)
 
 <p align="justify"> 
-API REST desenvolvida para uso em revenda de softwares de automação comercial, onde há necessidade do envio dos arquivos XML de documentos fiscais junto a um relatório para escritórios de contabilidade.
+API REST desenvolvida para uso em revenda de softwares de automação comercial, onde havia necessidade do envio dos arquivos XML de documentos fiscais junto a um relatório para escritórios de contabilidade.
     
 Este projeto realiza a leitura de XMLs de documentos fiscais e converte para um arquivo CSV. É possível gerar relatórios com diferentes modelos de documentos(NFC-e, NF-e, CF-e SAT) em um único arquivo.
 </p>
@@ -16,50 +17,71 @@ Este projeto realiza a leitura de XMLs de documentos fiscais e converte para um 
 
 :heavy_check_mark: Personalizar campos e delimitadores do arquivo CSV.
 
-## Instalando e executando o projeto
+## Instalando
 
 ```bash
-npm install
+$ npm install
 ```
 
+## Executando
+
 ```bash
-npm run dev
+# development
+$ npm run start
+
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
 ```
-Realize as requisições em [http://localhost:3000](http://localhost:3000) para obter o resultado.
+
+## Testando
+
+```bash
+# unit tests
+$ npm run test
+
+# e2e tests
+$ npm run test:e2e
+
+# test coverage
+$ npm run test:cov
+```
 
 ## REST API
+`POST /report/csv`
 
 ### Request
+```bash
+curl -X 'POST'
+  'https://dfe-reader-nodejs.herokuapp.com/report/csv'
+  -H 'Content-Type: multipart/form-data'
+  -F 'keys=emitCNPJ,status,dtEmissao,itemVTotal'
+  -F 'fieldDelimiter=;'
+  -F 'totalizerRow=true'
+  -F 'files=@NFCe.xml;type=text/xml'
+```
 
-`POST /report/`
-
-    curl --location --request POST 'localhost:3000/report' \--form 'xml=@""'
-
-### Response
-
-    Headers:
-    Status: 200 OK
-    Date: TWed, 16 Mar 2022 21:44:20 GMT
-    Content-Disposition: attachment; filename="report.csv"
-    Connection: keep-alive
-    Content-Type: text/csv
+### Responses
+    Code 201
     
-    Body:
-    emitCNPJ,emitNome,emitMun...
-    11.111.111/1111-11,EMITENTE TESTE,SAO PAULO...
+    Response headers:
+     content-disposition: attachment; filename=report.csv 
+     content-length: 142 
+     content-type: text/csv; charset=utf-8 
+    
+    Response body:
+      emitCNPJ;status;dtEmissao;itemVTotal
+      11.111.111/1111-11;AUTORIZADO;03/05/2021;25,16
+      11.111.111/1111-11;AUTORIZADO;03/05/2021;16,29
+      ;;;41,45
+      
+A documentação completa pode ser acessada em [Swagger UI](https://dfe-reader-nodejs.herokuapp.com/api)
 
 ### Paramêtros
 
-* `xml` - Um ou mais arquivos XML a serem convertidos para CSV.
-* `keys` - (Opcional) Array separado por vingulas de campos a serem gerados no relatório.
-    * `emitCNPJ, emitNome, ...`
-* `excludeKeys` - (Opcional) Array separado por vingulas de campos que não serão gerados no relatório
-    * `emitCNPJ, emitNome, ...`
+* `files` - Um ou mais arquivos XML a serem convertidos
+* `keys` - (Opcional) Array separado por vingulas de campos a serem gerados no relatório
 * `fieldDelimiter` - (Opcional) Define qual o delimitador utilizado no CSV
-    * default: `,`
-* `unwindArrays` - (Opcional) Boolean - Define se deve ser gerado com multiplas linhas para arrays de items nos documentos
-    * default: `true`
 * `includeTotalizerRow` - (Opcional) Boolean - Define se o relatório deve possuir um linha de valores totalizadores
-    * default: `false`
-
-
